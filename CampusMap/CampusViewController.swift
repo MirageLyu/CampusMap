@@ -17,6 +17,11 @@ class CampusViewController: UIViewController {
     var campus = Campus(filename: "Campus")
     var selectedOptions : [MapOptionsType] = []
     
+    let HospitalLocation = CLLocationCoordinate2D(latitude: 32.115734, longitude: 118.953025)
+    let LibraryLocation = CLLocationCoordinate2D(latitude: 32.114131, longitude: 118.960164)
+    let GymLocation = CLLocationCoordinate2D(latitude: 32.112753, longitude: 118.956244)
+    let DepartmentLocation = CLLocationCoordinate2D(latitude: 32.111045, longitude: 118.962997)
+    let SuperMarketLocation = CLLocationCoordinate2D(latitude: 32.114151, longitude: 118.954858)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +53,12 @@ class CampusViewController: UIViewController {
                 self.addPOIs()
             case .mapBoundary:
                 self.addBoundary()
+            case .mapNavigationLibraryToHospital:
+                self.addNavigationLibraryToHospital()
+            case .mapNavigationSupermarketToDepartment:
+                self.addNavigationSupermarketToDepartment()
+            case .mapNavigationGymToHospital:
+                self.addNavigationGymToHospital()
             }
         }
     }
@@ -65,6 +76,93 @@ class CampusViewController: UIViewController {
     //        mapView.addOverlay(overlay)
     //    }
     //
+    //case mapNavigationLibraryToHospital
+    //case mapNavigationSupermarketToDepartment
+    //case mapNavigationGymToHospital
+    
+    func addNavigationLibraryToHospital() {
+        let sourceLocation = LibraryLocation
+        let destinationLocation = HospitalLocation
+        
+        let sourceMark = MKPlacemark(coordinate: sourceLocation)
+        let destinationMark = MKPlacemark(coordinate: destinationLocation)
+        
+        let directionRequest = MKDirections.Request()
+        directionRequest.source = MKMapItem(placemark: sourceMark)
+        directionRequest.destination = MKMapItem(placemark: destinationMark)
+        directionRequest.transportType = .automobile
+        
+        let directions = MKDirections(request: directionRequest)
+        //Closure
+        directions.calculate { (response, error) in
+            guard let directionResponse = response else{
+                if let error = error{
+                    print(error.localizedDescription)
+                }
+                return
+            }
+            
+            let route = directionResponse.routes[0]
+            self.mapView.addOverlay(route.polyline, level: .aboveRoads)
+        }
+    }
+    
+    
+    
+    func addNavigationSupermarketToDepartment() {
+        let sourceLocation = SuperMarketLocation
+        let destinationLocation = DepartmentLocation
+        
+        let sourceMark = MKPlacemark(coordinate: sourceLocation)
+        let destinationMark = MKPlacemark(coordinate: destinationLocation)
+        
+        let directionRequest = MKDirections.Request()
+        directionRequest.source = MKMapItem(placemark: sourceMark)
+        directionRequest.destination = MKMapItem(placemark: destinationMark)
+        directionRequest.transportType = .automobile
+        
+        let directions = MKDirections(request: directionRequest)
+        //Closure
+        directions.calculate { (response, error) in
+            guard let directionResponse = response else{
+                if let error = error{
+                    print(error.localizedDescription)
+                }
+                return
+            }
+            
+            let route = directionResponse.routes[0]
+            self.mapView.addOverlay(route.polyline, level: .aboveRoads)
+        }
+    }
+    
+    func addNavigationGymToHospital() {
+        let sourceLocation = GymLocation
+        let destinationLocation = HospitalLocation
+        
+        let sourceMark = MKPlacemark(coordinate: sourceLocation)
+        let destinationMark = MKPlacemark(coordinate: destinationLocation)
+        
+        let directionRequest = MKDirections.Request()
+        directionRequest.source = MKMapItem(placemark: sourceMark)
+        directionRequest.destination = MKMapItem(placemark: destinationMark)
+        directionRequest.transportType = .automobile
+        
+        let directions = MKDirections(request: directionRequest)
+        //Closure
+        directions.calculate { (response, error) in
+            guard let directionResponse = response else{
+                if let error = error{
+                    print(error.localizedDescription)
+                }
+                return
+            }
+            
+            let route = directionResponse.routes[0]
+            self.mapView.addOverlay(route.polyline, level: .aboveRoads)
+        }
+    }
+    
     
     func addBoundary() {
         mapView.addOverlay(MKPolygon(coordinates: campus.boundary, count: campus.boundary.count))
@@ -107,7 +205,8 @@ extension CampusViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
        if overlay is MKPolyline {
             let lineView = MKPolylineRenderer(overlay: overlay)
-            lineView.strokeColor = UIColor.green
+            lineView.strokeColor = UIColor.red
+            lineView.lineWidth = CGFloat(4.0)
             return lineView
         } else if overlay is MKPolygon {
             let polygonView = MKPolygonRenderer(overlay: overlay)
